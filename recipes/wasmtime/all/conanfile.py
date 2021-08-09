@@ -1,5 +1,5 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+from conans import ConanFile, tools
+from conans.errors import ConanInvalidConfiguration
 import os
 import shutil
 
@@ -7,20 +7,20 @@ required_conan_version = ">=1.33.0"
 
 
 class WasmtimeConan(ConanFile):
-    name = 'wasmtime'
-    homepage = 'https://github.com/bytecodealliance/wasmtime'
-    license = 'Apache-2.0'
-    url = 'https://github.com/conan-io/conan-center-index'
+    name = "wasmtime"
+    homepage = "https://github.com/bytecodealliance/wasmtime"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
     description = "Standalone JIT-style runtime for WebAssembly, using Cranelift"
     topics = ("webassembly", "wasm", "wasi")
-    settings = "os", "compiler", "arch"
+    settings = "os", "arch", "compiler"
     options = {
         "shared": [True, False],
-        'fPIC': [True],
+        "fPIC": [True],
     }
     default_options = {
-        'shared': False,
-        'fPIC': True,
+        "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -51,7 +51,7 @@ class WasmtimeConan(ConanFile):
         }.get(str(self.settings.os), str(self.settings.os))
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -91,20 +91,20 @@ class WasmtimeConan(ConanFile):
                   destination=self._source_subfolder, strip_root=True)
 
     def package(self):
-        self.copy('LICENSE', src=self._source_subfolder, dst='licenses')
+        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         shutil.copytree(os.path.join(self._source_subfolder, "include"),
                         os.path.join(self.package_folder, "include"))
 
         srclibdir = os.path.join(self._source_subfolder, "lib")
         if self.options.shared:
-            self.copy('wasmtime.dll.lib', src=srclibdir, dst='lib', keep_path=False)
-            self.copy('wasmtime.dll', src=srclibdir, dst='bin', keep_path=False)
-            self.copy('libwasmtime.dll.a', src=srclibdir, dst='lib', keep_path=False)
-            self.copy('libwasmtime.so*', src=srclibdir, dst='lib', keep_path=False)
-            self.copy('libwasmtime.dylib', src=srclibdir,  dst='lib', keep_path=False)
+            self.copy("wasmtime.dll.lib", src=srclibdir, dst="lib", keep_path=False)
+            self.copy("wasmtime.dll", src=srclibdir, dst="bin", keep_path=False)
+            self.copy("libwasmtime.dll.a", src=srclibdir, dst="lib", keep_path=False)
+            self.copy("libwasmtime.so*", src=srclibdir, dst="lib", keep_path=False)
+            self.copy("libwasmtime.dylib", src=srclibdir,  dst="lib", keep_path=False)
         else:
-            self.copy('wasmtime.lib', src=srclibdir, dst='lib', keep_path=False)
-            self.copy('libwasmtime.a', src=srclibdir, dst='lib', keep_path=False)
+            self.copy("wasmtime.lib", src=srclibdir, dst="lib", keep_path=False)
+            self.copy("libwasmtime.a", src=srclibdir, dst="lib", keep_path=False)
 
     def package_info(self):
         if self.settings.os == "Windows":
@@ -119,7 +119,7 @@ class WasmtimeConan(ConanFile):
         self.cpp_info.libs = ["wasmtime" + libsuffix]
 
         if not self.options.shared:
-            if self.settings.os == 'Linux':
-                self.cpp_info.system_libs = ['pthread', 'dl', 'm']
+            if self.settings.os == "Linux":
+                self.cpp_info.system_libs = ["pthread", "dl", "m"]
             elif self.settings.os == "Windows":
-                self.cpp_info.system_libs = ['ws2_32', 'bcrypt', 'advapi32', 'userenv', 'ntdll', 'shell32', 'ole32']
+                self.cpp_info.system_libs = ["ws2_32", "bcrypt", "advapi32", "userenv", "ntdll", "shell32", "ole32"]
